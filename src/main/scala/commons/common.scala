@@ -2,7 +2,7 @@ package commons
 import org.apache.spark.rdd.RDD
 
 import scala.io.Source
-import org.apache.spark.sql.{SparkSession}
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
 object common {
 
@@ -22,6 +22,14 @@ object common {
 
   def writeAsTextFile(filepath: String, data: RDD[String]) = {
     data.saveAsTextFile(filepath)
+  }
+
+  def readParquetFile(spark:SparkSession, path:String) = {
+    spark.read.parquet(path)
+  }
+
+  def writeAsTextFile(filepath: String, data: DataFrame)={
+    data.write.mode("overwrite").option("header", "true").csv(filepath)
   }
 
 }

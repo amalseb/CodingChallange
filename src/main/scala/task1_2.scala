@@ -10,11 +10,15 @@ object task1_2 {
 
     val data = common.readCsvFromUrlAsList(spark: SparkSession, url: String)
 
-//    Subsection A
+
+    //    Subsection A
     val opDataA = data.map(_.split(",")).flatMap(row => row)
       .distinct()
-    common.writeAsTextFile(constants.TASK1_1_FILEPATH, opDataA)
-//    Subsection B
+    common.writeAsTextFile(constants.TASK1_2A_FILEPATH, opDataA)
+
+    //    Subsection B
+    val opDataB = spark.sparkContext.parallelize(Seq(s"Count: ${opDataA.count()}"))
+    common.writeAsTextFile(constants.TASK1_2B_FILEPATH, opDataB)
 
   }
 
