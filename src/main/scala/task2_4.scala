@@ -1,23 +1,30 @@
-import commons.{common, constants}
+import commons.{Common, Constants}
+import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.functions.{max, min, sum}
 
-object task2_4 {
+object Task2_4 {
   def main(args: Array[String]): Unit = {
-    val spark = common.getSparkSession(constants.TASK2_3)
+    // Set the log level to only print errors
+    Logger.getLogger("org").setLevel(Level.ERROR)
+    val spark = Common.getSparkSession(Constants.TASK2_4)
 
-    val airbnbDf = common.readParquetFile(spark, constants.PART2_URL)
+    val airbnbDf = Common.readParquetFile(spark, Constants.PART2_URL)
 
-    val filteredDf = airbnbDf.filter(airbnbDf("price") === airbnbDf.agg(min("price")).first().getDouble(0) &&
-      airbnbDf("review_scores_rating") === airbnbDf.agg(max("review_scores_rating")).first().getDouble(0))
+    // Finding the property with the lowest price and highest rating.
+    val filteredDf = airbnbDf.filter(airbnbDf(Constants.PRICE) === airbnbDf.agg(min(Constants.PRICE)).first().getDouble(0) &&
+      airbnbDf(Constants.REVIEW_SCORE_RATING) === airbnbDf.agg(max(Constants.REVIEW_SCORE_RATING)).first().getDouble(0))
 
-    val op = filteredDf.select(sum(airbnbDf("beds")) + sum(("bedrooms")) * 2)
+    // Takes guess that each room can take two people
+    val op = filteredDf.select(sum(airbnbDf(Constants.BEDS)) + sum((Constants.BEDROOMS)) * 2)
       .first()
       .getDouble(0)
       .toInt
 
-    val out = new java.io.FileWriter(constants.TASK2_4_FILEPATH)
+    // Writing the output to the file.
+    val out = new java.io.FileWriter(Constants.TASK2_4_FILEPATH)
     out.write(op.toString)
     out.close()
+    spark.stop()
   }
 
 }

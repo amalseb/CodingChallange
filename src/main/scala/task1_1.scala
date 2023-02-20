@@ -1,14 +1,21 @@
-import commons.{common, constants}
+import commons.{Common, Constants}
+import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 
-object task1_1{
+object Task1_1{
 
   def main(args: Array[String]): Unit = {
-    val spark = common.getSparkSession(constants.TASK1_1)
+    // Set the log level to only print errors
+    Logger.getLogger("org").setLevel(Level.ERROR)
+    val spark = Common.getSparkSession(Constants.TASK1_1)
 
-    val url = constants.PART1_URL
+    val url = Constants.PART1_URL
 
-    val data = common.readCsvFromUrlAsList(spark: SparkSession, url:String)
+    val data = Common.readCsvFromUrlAsList(spark: SparkSession, url:String)
+
+    // Print first 5 elements from RDD
     data.take(5).foreach(println)
+
+    spark.stop()
   }
 }

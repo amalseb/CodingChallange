@@ -1,14 +1,18 @@
-import commons.{common, constants}
+import commons.{Common, Constants}
+import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 
-object task1_3 {
+object Task1_3 {
   def main(args: Array[String]): Unit = {
-    val spark = common.getSparkSession(constants.TASK1_3)
+    // Set the log level to only print errors
+    Logger.getLogger("org").setLevel(Level.ERROR)
+    val spark = Common.getSparkSession(Constants.TASK1_3)
 
-    val url = constants.PART1_URL
+    val url = Constants.PART1_URL
 
-    val data = common.readCsvFromUrlAsList(spark: SparkSession, url: String)
+    val data = Common.readCsvFromUrlAsList(spark: SparkSession, url: String)
 
+    // Taking top 5 Data from RDD
     val top5Data = data
       .flatMap(line => line.split(","))
       .map(product => (product, 1))
@@ -18,6 +22,9 @@ object task1_3 {
 
     val opData = spark.sparkContext.parallelize((top5Data)
       .map { case (product, count) => s"$product:$count" })
-    common.writeAsTextFile(constants.TASK1_3_FILEPATH, opData)
+
+    //the results out in descending order of frequency into a file out/out_1_3.txt
+    Common.writeAsTextFile(Constants.TASK1_3_FILEPATH, opData)
+    spark.stop()
   }
 }
